@@ -1,0 +1,25 @@
+
+#!/bin/bash
+
+export HOME=/home/darnell
+
+d1=~/Backups
+d2=~/Homenet
+nz_backups=~/to_nas/nz_backups
+nz_docker=~/to_nas/docker_backups
+
+# Sync Backups to Nas Drive using Rsync
+echo "Rsyncing the Backups directory to Nas Drive"
+rsync -azv "$d1" "$nz_backups"
+
+# Create tar.gz for each directory in Homenet and move to Docker backups
+for dir in "$d2"/*/; do
+    # Create tar.gz archive for each subdirectory
+    tar -czvf "${dir%/}.tar.gz" -C "$(dirname "$dir")" "$(basename "$dir")"
+
+    # Move the tar.gz file to the nz_docker directory
+    mv "${dir%/}.tar.gz" "$nz_docker"
+done
+
+echo "Backup process completed!"
+
